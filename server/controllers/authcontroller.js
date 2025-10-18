@@ -47,7 +47,7 @@ export const signup = async (req, res) => {
     generateTokenAndSetCookie(res, newUser._id);
 
     console.log("Sending verification email to:", email); // <-- debug
-    sendVerificationEmail(email, verificationToken);
+    await sendVerificationEmail(email, verificationToken);
 
     res.status(201).json({
       success: true,
