@@ -6,27 +6,14 @@ import {
 } from "./emailTemplates.js";
 import { transporter } from "./mailtrap.config.js";
 
-@param {string} email - recipient email
- * @param {string} verificationToken - token to verify email
- * @returns {Promise<object>} - info about the sent email
- */
 export const sendVerificationEmail = async (email, verificationToken) => {
-  if (!email || !verificationToken) {
-    throw new Error("Email and verification token are required.");
-  }
-
-  // Using template literals for easier customization
-  const htmlContent = `
-    <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-      <h2>Verify Your Email</h2>
-      <p>Thank you for signing up! Please use the verification code below to verify your email:</p>
-      <h3 style="color: #4CAF50;">${verificationToken}</h3>
-      <p>If you did not request this, please ignore this email.</p>
-    </div>
-  `;
+  const htmlContent = VERIFICATION_EMAIL_TEMPLATE.replace(
+    "{verificationCode}",
+    verificationToken
+  );
 
   const mailOptions = {
-    from: `"${process.env.SMTP_FROM_NAME || "Your App"}" <${process.env.SMTP_USER}>`,
+    from: `"Souvik ka authentication" <${process.env.SMTP_USER}>`,
     to: email,
     subject: "Verify Your Email",
     html: htmlContent,
@@ -34,11 +21,10 @@ export const sendVerificationEmail = async (email, verificationToken) => {
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log("Verification email sent:", info.messageId);
-    return info; // return info for further logging or tracking
+    console.log("Email sent successfully:", info.messageId);
   } catch (error) {
-    console.error("Failed to send verification email:", error);
-    throw new Error("Unable to send verification email. Please try again later.");
+    console.error("Error sending verification email:", error);
+    throw new Error(`Error sending verification email: ${error}`);
   }
 };
 
