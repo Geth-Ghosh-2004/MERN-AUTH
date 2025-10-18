@@ -13,10 +13,14 @@ export const signup = async (req, res) => {
   const { email, password, name } = req.body;
 
   try {
+    console.log("Signup request body:", req.body); // <-- debug
+
     if (!email || !password || !name)
       throw new Error("All fields are required");
 
     const userAlreadyExists = await User.findOne({ email });
+    console.log("User already exists check:", userAlreadyExists); // <-- debug
+
     if (userAlreadyExists)
       return res
         .status(400)
@@ -27,6 +31,8 @@ export const signup = async (req, res) => {
       100000 + Math.random() * 900000
     ).toString();
 
+    console.log("Generated verification token:", verificationToken); // <-- debug
+
     const newUser = new User({
       email,
       password: hashedPassword,
@@ -36,8 +42,11 @@ export const signup = async (req, res) => {
     });
 
     await newUser.save();
+    console.log("New user saved:", newUser); // <-- debug
+
     generateTokenAndSetCookie(res, newUser._id);
 
+    console.log("Sending verification email to:", email); // <-- debug
     sendVerificationEmail(email, verificationToken);
 
     res.status(201).json({
@@ -46,9 +55,11 @@ export const signup = async (req, res) => {
       user: { ...newUser._doc, password: undefined },
     });
   } catch (error) {
+    console.error("Signup error:", error); // <-- debug
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
 
 export const verifyEmail = async (req, res) => {
   const { code } = req.body;
