@@ -10,7 +10,6 @@ const ResetPasswordPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const { resetPassword, error, isLoading, message } = useAuthStore();
-
   const { token } = useParams();
   const navigate = useNavigate();
 
@@ -18,21 +17,19 @@ const ResetPasswordPage = () => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
-    try {
-      await resetPassword(token, password);
 
-      toast.success(
-        "Password reset successfully, redirecting to login page..."
-      );
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
-    } catch (error) {
-      console.error(error);
-      toast.error(error.message || "Error resetting password");
+    try {
+      await resetPassword(token, password); // call store
+      toast.success("Password reset successfully!");
+
+      // Directly navigate to home page
+      navigate("/"); 
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || "Error resetting password");
     }
   };
 
@@ -47,6 +44,7 @@ const ResetPasswordPage = () => {
         <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text">
           Reset Password
         </h2>
+
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
         {message && <p className="text-green-500 text-sm mb-4">{message}</p>}
 
@@ -59,7 +57,6 @@ const ResetPasswordPage = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-
           <Input
             icon={Lock}
             type="password"
@@ -68,7 +65,6 @@ const ResetPasswordPage = () => {
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
-
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -83,4 +79,5 @@ const ResetPasswordPage = () => {
     </motion.div>
   );
 };
+
 export default ResetPasswordPage;
